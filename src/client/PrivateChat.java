@@ -7,9 +7,6 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
-import java.util.Vector;
-
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -37,11 +34,9 @@ public class PrivateChat extends Thread {
     private boolean isHost;
     private String remoteHost;
     private int remotePort;
-    private List<Object> response;
 
     public PrivateChat(String nick, boolean isHost, int remotePort) {
 	this.remotePort = remotePort;
-	this.response = new Vector<Object>();
 	int port = 2300;
 	boolean portTaken;
 	if (this.isHost = isHost) {

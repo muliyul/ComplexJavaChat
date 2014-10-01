@@ -51,7 +51,7 @@ public class AuthServiceWorker extends Thread {
 		    response.add("AUTH: Enter nickname (" + n
 			    + " tries left)");
 		
-		out.writeObject(response);
+		out.writeUnshared(response);
 		
 		clientResponse = (Vector<Object>) in.readUnshared();
 		nick = (String) clientResponse.get(1);
