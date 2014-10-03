@@ -8,6 +8,8 @@ import java.net.Socket;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 
+import comm.Protocol;
+
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -27,6 +29,7 @@ public class PrivateChat extends Thread {
     @FXML
     private Button sendButton;
 
+    private static int port = 2300;
     private ServerSocket serverSocket;
     private ObjectOutputStream out;
     private ObjectInputStream in;
@@ -38,7 +41,6 @@ public class PrivateChat extends Thread {
 
     public PrivateChat(String nick, int remotePort, boolean isHost) {
 	this.remotePort = remotePort;
-	int port = 2300;
 	boolean portTaken;
 	if (this.isHost = isHost) {
 	    do {
@@ -53,7 +55,7 @@ public class PrivateChat extends Thread {
 	this.nickname = nick;
     }
 
-    protected void send(ActionEvent event) {
+    public void send(ActionEvent event) {
 	if (!msgBar.getText().equals("") || msgBar.getText() != null) {
 	    try {
 		send(nickname + msgBar.getText());
@@ -71,7 +73,7 @@ public class PrivateChat extends Thread {
         }
     }
 
-    protected void sendBar(KeyEvent event) {
+    public void sendBar(KeyEvent event) {
 	if (event.getCode().equals(KeyCode.ENTER))
 	    if (!msgBar.getText().equals("") || msgBar.getText() != null) {
 		try {
@@ -103,10 +105,9 @@ public class PrivateChat extends Thread {
 		out = new ObjectOutputStream(remote.getOutputStream());
 		in = new ObjectInputStream(remote.getInputStream());
 		while (isConnected) {
-		    String msg;
 		    try {
-			msg = (String) in.readObject();
-			append(msg);
+			Protocol p = (Protocol)in.readUnshared();
+			append((String)p.getContent()[0]);
 		    } catch (IOException | ClassNotFoundException e) {
 		    }
 		}
@@ -118,10 +119,9 @@ public class PrivateChat extends Thread {
 		out = new ObjectOutputStream(remote.getOutputStream());
 		in = new ObjectInputStream(remote.getInputStream());
 		while (isConnected) {
-		    String msg;
 		    try {
-			msg = (String) in.readObject();
-			append(msg);
+			Protocol p = (Protocol)in.readUnshared();
+			append((String)p.getContent()[0]);
 		    } catch (IOException | ClassNotFoundException e) {
 		    }
 		}

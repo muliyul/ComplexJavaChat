@@ -19,7 +19,7 @@ public class ServerGUIController {
 	this.server = server;
     }
 
-    protected void connectDisconnect(ActionEvent e) {
+    public void connectDisconnect(ActionEvent e) {
 	Platform.runLater(new Runnable() {
 	    public void run() {
 		if (server.isRunning()) {

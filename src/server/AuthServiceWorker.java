@@ -58,10 +58,8 @@ public class AuthServiceWorker extends Thread {
 	    if (n > 0) {
 		out.writeUnshared(new Protocol(Protocol.Type.MESSAGE, "Entering chat room as " + nick + "..."));
 		out.writeUnshared(new Protocol(Protocol.Type.NICK, nick));
-		as.getServer().addClient(
-			nick,
-			ch =
-				new ClientHandler(nick, s, in, out, as
+		as.getServer().
+		addClient(nick,ch = new ClientHandler(nick, s, in, out, as
 					.getServer()));
 	    } else {
 		out.writeUnshared(new Protocol(Protocol.Type.MESSAGE, "AUTH: Terminating connection..."));

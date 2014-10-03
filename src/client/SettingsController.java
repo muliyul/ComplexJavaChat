@@ -10,9 +10,9 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 
-public class SettingsController implements Initializable{
+public class SettingsController implements Initializable {
     private ClientController clientController;
-    
+
     @FXML
     private Button settingsApply;
 
@@ -24,29 +24,34 @@ public class SettingsController implements Initializable{
 
     @FXML
     private TextField portField;
-    
+
     public SettingsController(ClientController cc) {
 	this.clientController = cc;
     }
-    
+
     @Override
     public void initialize(URL location, ResourceBundle resources) {
 
-	
 	settingsApply.setOnAction(new EventHandler<ActionEvent>() {
 	    public void handle(ActionEvent event) {
 		String lastHost = clientController.getHostname();
 		int lastPort = clientController.getPort();
 		try {
 		    clientController.setHostname(hostnameField.getText());
-		    clientController.setPort(Integer.parseInt(portField.getText()));
+		    clientController.setPort(Integer.parseInt(portField
+			    .getText()));
+		    hostnameField.setText(clientController.getHostname());
+		    portField.setText("" + clientController.getPort());
+		    clientController.associatedClient.connect(
+			    clientController.getHostname(),
+			    clientController.getPort());
 		} catch (IllegalArgumentException e) {
+		    e.printStackTrace();
 		    clientController.setHostname(lastHost);
 		    clientController.setPort(lastPort);
 		}
 		clientController.closeSettings();
-		hostnameField.setText(clientController.getHostname());
-		portField.setText("" + clientController.getPort());
+		event.consume();
 	    }
 	});
 	settingsCancel.setOnAction(new EventHandler<ActionEvent>() {

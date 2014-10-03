@@ -1,5 +1,6 @@
 package server;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -34,7 +35,7 @@ public class Server extends Application implements Runnable {
     }
 
     public Server() throws IOException {
-	this(5050);
+	this(2301);
     }
 
     public Server(int port) throws IOException {
@@ -45,8 +46,10 @@ public class Server extends Application implements Runnable {
 	logger = Logger.getLogger("server_" + port);
 	logger.setUseParentHandlers(false);
 	FileHandler fh;
+	if(!new File("logs").exists())
+	    new File("logs").mkdir();
 	logger.addHandler(fh =
-		new FileHandler("server_" + port + ".log", false));
+		new FileHandler("logs\\server_" + port + ".log", false));
 	fh.setFormatter(new Formatter() {
 	    public String format(LogRecord record) {
 		return LocalDateTime.now().format(
@@ -73,6 +76,8 @@ public class Server extends Application implements Runnable {
 	primaryStage.setOnCloseRequest(new EventHandler<WindowEvent>() {
 	    public void handle(WindowEvent event) {
 		stop();
+		event.consume();
+		primaryStage.close();
 	    }
 	});
 	sgc.setLabel("Server is running on port " + getLocalPort());
@@ -132,8 +137,8 @@ public class Server extends Application implements Runnable {
     }
 
     protected synchronized void broadcastClientList() throws IOException {
+	logger.info("Broadcasting client list...");
 	for (ClientHandler ch : handlers.values()) {
-	    logger.info("Broadcasting client list...");
 	    if (ch != null) {
 		ch.sendClientList(new HashSet<String>(handlers.keySet()));
 	    }

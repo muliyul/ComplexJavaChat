@@ -31,10 +31,10 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 public class ClientController implements Initializable {
-    private Client associatedClient;
+    protected Client associatedClient;
     private String hostname;
     private int port;
-    
+
     private Stage primaryStage;
     private String title;
 
@@ -61,7 +61,7 @@ public class ClientController implements Initializable {
 
     @FXML
     private Stage settings;
-    
+
     public ClientController(String title, Stage primaryStage, Client c) {
 	this.primaryStage = primaryStage;
 	primaryStage.setTitle(this.title = title);
@@ -89,7 +89,7 @@ public class ClientController implements Initializable {
 		    if (!msgBar.getText().equals("")
 			    || msgBar.getText() != null)
 			try {
-			    associatedClient.sendMessage(msgBar.getText());
+			    associatedClient.send(msgBar.getText());
 			} catch (IOException e) {
 			}
 		    event.consume();
@@ -100,7 +100,7 @@ public class ClientController implements Initializable {
 	    public void handle(ActionEvent event) {
 		if (!msgBar.getText().equals("") || msgBar.getText() != null)
 		    try {
-			associatedClient.sendMessage(msgBar.getText());
+			associatedClient.send(msgBar.getText());
 		    } catch (IOException e) {
 		    }
 		event.consume();
@@ -110,11 +110,9 @@ public class ClientController implements Initializable {
 	    public void handle(ActionEvent event) {
 		if (associatedClient.isConnected()) {
 		    associatedClient.disconnect();
-		    
 		} else {
 		    associatedClient.connect(hostname, port);
 		}
-		associatedClient.setConnected(!associatedClient.isConnected());
 		event.consume();
 	    }
 	});
@@ -192,11 +190,8 @@ public class ClientController implements Initializable {
     }
 
     protected void showSettingsAndWait() {
-	Platform.runLater(new Runnable() {
-	    public void run() {
-		settings.showAndWait();
-	    }
-	});
+	if (!settings.isShowing())
+	    settings.showAndWait();
     }
 
     protected void addPrivateChatTab(Tab privateChat) {
@@ -211,12 +206,12 @@ public class ClientController implements Initializable {
     protected void setTitleConnected() {
 	setTitle("Connected - " + title);
     }
-    
+
     protected void setTitleDisconnected() {
 	setTitle("Disconnected - " + title);
     }
 
-    private void setTitle(String title){
+    private void setTitle(String title) {
 	Platform.runLater(new Runnable() {
 	    public void run() {
 		primaryStage.setTitle(title);
@@ -224,4 +219,19 @@ public class ClientController implements Initializable {
 	});
     }
 
+    protected void addPrivateChatTab(String remoteNick, int port, boolean isHost) {
+	FXMLLoader loader =
+		new FXMLLoader(getClass().getResource("PrivateTab.fxml"));
+	try {
+	    loader.setController(new PrivateChat(remoteNick, port, isHost));
+	    if (isHost) {
+		associatedClient.connectRemoteUser(remoteNick, port);
+	    }
+	    Tab privateChat = new Tab(remoteNick);
+	    loader.setRoot(privateChat);
+	    loader.load();
+	    addPrivateChatTab(privateChat);
+	} catch (IOException e) {
+	}
+    }
 }
