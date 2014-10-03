@@ -19,7 +19,7 @@ public class ServerGUIController {
 	this.server = server;
     }
 
-    public void connectDisconnect(ActionEvent e) {
+    protected void connectDisconnect(ActionEvent e) {
 	Platform.runLater(new Runnable() {
 	    public void run() {
 		if (server.isRunning()) {
@@ -36,7 +36,7 @@ public class ServerGUIController {
 	});
     }
 
-    public void setLabel(String string) {
+    protected void setLabel(String string) {
 	Platform.runLater(new Runnable() {
 	    public void run() {
 		statusLabel.setText(string);

@@ -7,6 +7,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -26,16 +27,16 @@ public class PrivateChat extends Thread {
     @FXML
     private Button sendButton;
 
-    private ServerSocket s;
+    private ServerSocket serverSocket;
     private ObjectOutputStream out;
     private ObjectInputStream in;
     private boolean isConnected;
-    private String nick;
+    private String nickname;
     private boolean isHost;
     private String remoteHost;
     private int remotePort;
 
-    public PrivateChat(String nick, boolean isHost, int remotePort) {
+    public PrivateChat(String nick, int remotePort, boolean isHost) {
 	this.remotePort = remotePort;
 	int port = 2300;
 	boolean portTaken;
@@ -43,19 +44,19 @@ public class PrivateChat extends Thread {
 	    do {
 		portTaken = false;
 		try {
-		    this.s = new ServerSocket(port++);
+		    this.serverSocket = new ServerSocket(port++);
 		} catch (IOException e1) {
 		    portTaken = true;
 		}
 	    } while (portTaken);
 	}
-	this.nick = nick;
+	this.nickname = nick;
     }
 
-    public void send(ActionEvent event) {
+    protected void send(ActionEvent event) {
 	if (!msgBar.getText().equals("") || msgBar.getText() != null) {
 	    try {
-		send(nick + msgBar.getText());
+		send(nickname + msgBar.getText());
 	    } catch (IOException e) {
 		e.printStackTrace();
 	    }
@@ -63,23 +64,23 @@ public class PrivateChat extends Thread {
 	}
     }
 
-    public void sendBar(KeyEvent event) {
+    private void send(String str) throws IOException {
+        if (out != null) {
+            append(nickname + str);
+            out.writeObject(nickname + str);
+        }
+    }
+
+    protected void sendBar(KeyEvent event) {
 	if (event.getCode().equals(KeyCode.ENTER))
 	    if (!msgBar.getText().equals("") || msgBar.getText() != null) {
 		try {
-		    send(nick + msgBar.getText());
+		    send(nickname + msgBar.getText());
 		} catch (IOException e) {
 		    e.printStackTrace();
 		}
 	    }
 	event.consume();
-    }
-
-    private void send(String str) throws IOException {
-	if (out != null) {
-	    append(nick + str);
-	    out.writeObject(nick + str);
-	}
     }
 
     private void append(String str) {
@@ -97,7 +98,7 @@ public class PrivateChat extends Thread {
     public void run() {
 	if (isHost) {
 	    try {
-		Socket remote = s.accept();
+		Socket remote = serverSocket.accept();
 		isConnected = true;
 		out = new ObjectOutputStream(remote.getOutputStream());
 		in = new ObjectInputStream(remote.getInputStream());
@@ -128,11 +129,5 @@ public class PrivateChat extends Thread {
 	    } catch (IOException e) {
 	    }
 	}
-    }
-
-    public int getPort() {
-	if (s != null)
-	    return s.getLocalPort();
-	return -1;
     }
 }

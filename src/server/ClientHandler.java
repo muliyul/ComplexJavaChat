@@ -5,8 +5,6 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.HashSet;
-import java.util.List;
-import java.util.Vector;
 
 import comm.Protocol;
 
@@ -39,20 +37,16 @@ public class ClientHandler extends Thread {
 	// setDaemon(true);
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public void run() {
 	isConnected = true;
-	Vector<Object> response;
 	while (isConnected) {
 	    try {
-		response = (Vector<Object>) in.readUnshared();
-		handle(response);
+		Protocol p = (Protocol) in.readUnshared();
+		handle(p);
 	    } catch (IOException | ClassNotFoundException e) {
 		try {
-		    Vector<Object> v = new Vector<Object>();
-		    v.add(Protocol.I_QUIT);
-		    handle(v);
+		    handle(new Protocol(Protocol.Type.I_QUIT));
 		    isConnected = false;
 		} catch (ClassNotFoundException | IOException e2) {
 		}
@@ -65,54 +59,44 @@ public class ClientHandler extends Thread {
 	}
     }
 
-    @SuppressWarnings({ "incomplete-switch", "unchecked" })
-    private void handle(List<Object> res) throws IOException,
-	    ClassNotFoundException {
-	List<Object> resposne = new Vector<>();
-	switch ((Protocol) res.get(0)) {
-	case NICK: {
-	    resposne.add(Protocol.NICK);
-	    resposne.add(nick);
-	    out.writeUnshared(resposne);
-	    break;
+    private void handle(Protocol p) throws IOException, ClassNotFoundException {
+	Object[] params = p.getContent();
+	switch (p.getType()) {
+	case NICK: { // RECIEVE NICK REQUEST
+	    out.writeUnshared(new Protocol(Protocol.Type.NICK, nick));
+	    break; // return client's nick
 	}
-	case I_QUIT: {
+	case I_QUIT: { // RECIEVE QUIT ALERT
 	    server.broadcastMessage(nick, "has left.");
 	    server.removeClient(nick);
 	    s.close();
 	    isConnected = false;
 	    break;
 	}
-	case INITIATE_PEER_CONNECTION: {
-	    String nick = (String) res.get(1);
-	    int port = (int) res.get(2);
-	    server.initiatePeerConnection(nick, port);
+	case INITIATE_PEER_CONNECTION: { // RECIEVE PRIVATE CHAT HOST
+	    int port = (int) params[0];
+	    server.initiatePeerConnection(this.nick, nick, port);
+	    break;
+	}
+	case CLIENT_PEER_CONNECTION_REQUEST: { // SEND PRIVATE CHAT HOST
+	    out.writeUnshared(p);
 	    break;
 	}
 	case UPDATE_NICK_LIST: {
-	    resposne.add(Protocol.UPDATE_NICK_LIST);
-	    resposne.add((HashSet<String>) in.readObject());
-	    out.writeUnshared(resposne);
-	}
-	case PEER_CONNECTION_REQUEST: {
-	    resposne.add(Protocol.PEER_CONNECTION_REQUEST);
-	    resposne.add(res.get(1)); // remote nick
-	    resposne.add(res.get(2)); // remote port
-	    out.writeUnshared(resposne);
+	    out.writeUnshared(p);
 	    break;
 	}
 	case MESSAGE: {
-	    server.broadcastMessage(nick, (String) res.get(1));
+	    server.broadcastMessage(nick, (String) params[0]);
 	    break;
 	}
+	default:
+	    break;
 	}
     }
 
     protected void sendMessage(String msg) throws IOException {
-	Vector<Object> resposne = new Vector<Object>();
-	resposne.add(Protocol.MESSAGE);
-	resposne.add(msg);
-	out.writeUnshared(resposne);
+	out.writeUnshared(new Protocol(Protocol.Type.MESSAGE, msg));
     }
 
     protected String getHostname() {
@@ -124,18 +108,12 @@ public class ClientHandler extends Thread {
     }
 
     protected void sendClientList(HashSet<String> set) throws IOException {
-	List<Object> response = new Vector<Object>();
-	response.add(Protocol.UPDATE_NICK_LIST);
-	response.add(set);
-	out.writeUnshared(response);
+	out.writeUnshared(new Protocol(Protocol.Type.UPDATE_NICK_LIST, set));
     }
 
-    protected void sendPort(String nick, int port) throws IOException {
-	List<Object> response = new Vector<Object>();
-	response.add(Protocol.PEER_CONNECTION_REQUEST);
-	response.add(nick);
-	response.add(port);
-	out.writeUnshared(response);
+    protected void sendPrivateChatHostDetails(String nick, int port) throws IOException {
+	out.writeUnshared(new Protocol(Protocol.Type.CLIENT_PEER_CONNECTION_REQUEST,
+		nick, port));
     }
 
     protected void close() throws IOException {

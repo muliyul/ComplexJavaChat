@@ -11,7 +11,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 
 public class SettingsController implements Initializable{
-    private ClientController cc;
+    private ClientController clientController;
     
     @FXML
     private Button settingsApply;
@@ -26,7 +26,7 @@ public class SettingsController implements Initializable{
     private TextField portField;
     
     public SettingsController(ClientController cc) {
-	this.cc = cc;
+	this.clientController = cc;
     }
     
     @Override
@@ -35,25 +35,25 @@ public class SettingsController implements Initializable{
 	
 	settingsApply.setOnAction(new EventHandler<ActionEvent>() {
 	    public void handle(ActionEvent event) {
-		String lastHost = cc.getHostname();
-		int lastPort = cc.getPort();
+		String lastHost = clientController.getHostname();
+		int lastPort = clientController.getPort();
 		try {
-		    cc.setHostname(hostnameField.getText());
-		    cc.setPort(Integer.parseInt(portField.getText()));
+		    clientController.setHostname(hostnameField.getText());
+		    clientController.setPort(Integer.parseInt(portField.getText()));
 		} catch (IllegalArgumentException e) {
-		    cc.setHostname(lastHost);
-		    cc.setPort(lastPort);
+		    clientController.setHostname(lastHost);
+		    clientController.setPort(lastPort);
 		}
-		cc.closeSettings();
-		hostnameField.setText(cc.getHostname());
-		portField.setText("" + cc.getPort());
+		clientController.closeSettings();
+		hostnameField.setText(clientController.getHostname());
+		portField.setText("" + clientController.getPort());
 	    }
 	});
 	settingsCancel.setOnAction(new EventHandler<ActionEvent>() {
 	    public void handle(ActionEvent event) {
-		cc.closeSettings();
-		hostnameField.setText(cc.getHostname());
-		portField.setText("" + cc.getPort());
+		clientController.closeSettings();
+		hostnameField.setText(clientController.getHostname());
+		portField.setText("" + clientController.getPort());
 		event.consume();
 	    }
 	});

@@ -36,6 +36,7 @@ public class ClientController implements Initializable {
     private int port;
     
     private Stage primaryStage;
+    private String title;
 
     @FXML
     private VBox nickList;
@@ -61,8 +62,9 @@ public class ClientController implements Initializable {
     @FXML
     private Stage settings;
     
-    public ClientController(Stage primaryStage, Client c) {
+    public ClientController(String title, Stage primaryStage, Client c) {
 	this.primaryStage = primaryStage;
+	primaryStage.setTitle(this.title = title);
 	associatedClient = c;
 	this.hostname = "localhost";
 	this.port = 5050;
@@ -136,15 +138,15 @@ public class ClientController implements Initializable {
 	settings.close();
     }
 
-    public void setHostname(String text) {
+    protected void setHostname(String text) {
 	this.hostname = text;
     }
 
-    public void setPort(int port) {
+    protected void setPort(int port) {
 	this.port = port;
     }
 
-    public void appendToChatArea(String str) {
+    protected void appendToChatArea(String str) {
 	Platform.runLater(new Runnable() {
 	    public void run() {
 		chatArea.appendText("[ "
@@ -155,7 +157,7 @@ public class ClientController implements Initializable {
 	});
     }
 
-    public void updateNickList(Set<String> o) {
+    protected void updateNickList(Set<String> o) {
 	Platform.runLater(new Runnable() {
 	    public void run() {
 		List<String> nicks;
@@ -164,12 +166,12 @@ public class ClientController implements Initializable {
 		for (String nick : nicks) {
 		    Label t;
 		    nickList.getChildren().add(t = new Label(nick));
-		    if (!nick.equals(associatedClient.getNick())) {
+		    if (!nick.equals(associatedClient.getNickname())) {
 			t.setOnMouseClicked(new EventHandler<MouseEvent>() {
 			    public void handle(MouseEvent event) {
 				if (event.getClickCount() >= 2) {
 				    associatedClient.openPrivateSession(nick,
-					    true, 0);
+					    0, true);
 				}
 			    }
 			});
@@ -206,12 +208,20 @@ public class ClientController implements Initializable {
 	});
     }
 
-    public String getTitle() {
-	return primaryStage.getTitle();
+    protected void setTitleConnected() {
+	setTitle("Connected - " + title);
+    }
+    
+    protected void setTitleDisconnected() {
+	setTitle("Disconnected - " + title);
     }
 
-    protected void setTitle(String string) {
-	primaryStage.setTitle(string);
+    private void setTitle(String title){
+	Platform.runLater(new Runnable() {
+	    public void run() {
+		primaryStage.setTitle(title);
+	    }
+	});
     }
 
 }
