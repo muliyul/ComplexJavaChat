@@ -15,6 +15,7 @@ import javafx.application.Platform;
 import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 
@@ -57,12 +58,12 @@ public class Client extends Application implements Runnable {
 	primaryStage.setResizable(false);
 	primaryStage.setOnCloseRequest(new EventHandler<WindowEvent>() {
 	    public void handle(WindowEvent event) {
-		event.consume();
 		try {
 		    if (socket != null) {
 			out.writeUnshared(new Protocol(Protocol.Type.I_QUIT));
 			socket.close();
 		    }
+		    clientController.closeAllPrivateChats();
 		} catch (IOException e) {
 		    // e.printStackTrace();
 		} finally {
@@ -70,8 +71,11 @@ public class Client extends Application implements Runnable {
 		}
 	    }
 	});
+	primaryStage.getIcons().add(
+		new Image(getClass().getResourceAsStream(
+			"/Resources/MuliChat.bmp")));
 	primaryStage.show();
-	// connect(clientController.getHostname(), clientController.getPort());
+	connect(clientController.getHostname(), clientController.getPort());
     }
 
     protected void connect(String ip, int port) {
@@ -80,8 +84,11 @@ public class Client extends Application implements Runnable {
 		    + clientController.getHostname() + ":" + port);
 	    clientController.setTitleConnected();
 	    socket = new Socket(ip, port);
-	    out = new ObjectOutputStream(socket.getOutputStream());
-	    in = new ObjectInputStream(socket.getInputStream());
+	    out =
+		    new ObjectOutputStream(socket.getOutputStream());
+	    out.flush();
+	    in =
+		    new ObjectInputStream(socket.getInputStream());
 	    listener = new Thread(this);
 	    // listener.setDaemon(true);
 	    isConnected = true;
@@ -135,8 +142,8 @@ public class Client extends Application implements Runnable {
 		Protocol p = (Protocol) in.readUnshared();
 		handle(p);
 	    }
-	} catch (IOException  e) {
-	    e.printStackTrace();
+	} catch (IOException e) {
+	    // e.printStackTrace();
 	} catch (ClassCastException | ClassNotFoundException e) {
 	}
     }
@@ -184,9 +191,10 @@ public class Client extends Application implements Runnable {
 	clientController.addPrivateChatTab(remoteNick, port, isHost);
     }
 
-    void connectRemoteUser(String remoteNick, int port) throws IOException {
+    protected void connectRemoteUser(String remoteNick, int port)
+	    throws IOException {
 	out.writeUnshared(new Protocol(Protocol.Type.INITIATE_PEER_CONNECTION,
-		port));
+		remoteNick, port));
     }
 
     private synchronized void updateNickList(Set<String> o) {

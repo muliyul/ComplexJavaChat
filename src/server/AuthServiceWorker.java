@@ -24,10 +24,11 @@ public class AuthServiceWorker extends Thread {
     public AuthServiceWorker(AuthService as, Socket s) throws IOException {
 	this.s = s;
 	this.as = as;
-	out = new ObjectOutputStream(s.getOutputStream());
+	out =
+		new ObjectOutputStream(s.getOutputStream());
 	in = new ObjectInputStream(s.getInputStream());
 	startAuthDate = LocalDateTime.now();
-	//setDaemon(true);
+	// setDaemon(true);
 	start();
     }
 
@@ -41,14 +42,13 @@ public class AuthServiceWorker extends Thread {
 		String s;
 
 		if (n == 3)
-		    s="AUTH: Enter nickname";
+		    s = "AUTH: Enter nickname";
 		else
-		    s="AUTH: Enter nickname (" + n
-			    + " tries left)";
-		
+		    s = "AUTH: Enter nickname (" + n + " tries left)";
+
 		out.writeUnshared(new Protocol(Protocol.Type.AUTH, s));
-		
-		Protocol clientResponse = (Protocol)in.readUnshared();
+
+		Protocol clientResponse = (Protocol) in.readUnshared();
 		nick = (String) clientResponse.getContent()[0];
 		n--;
 	    } while (!as.getServer().checkNickIsValid(nick)
@@ -56,13 +56,17 @@ public class AuthServiceWorker extends Thread {
 		    && LocalDateTime.now().isBefore(
 			    startAuthDate.plusMinutes(1)));
 	    if (n > 0) {
-		out.writeUnshared(new Protocol(Protocol.Type.MESSAGE, "Entering chat room as " + nick + "..."));
+		out.writeUnshared(new Protocol(Protocol.Type.MESSAGE,
+			"Entering chat room as " + nick + "..."));
 		out.writeUnshared(new Protocol(Protocol.Type.NICK, nick));
-		as.getServer().
-		addClient(nick,ch = new ClientHandler(nick, s, in, out, as
+		as.getServer().addClient(
+			nick,
+			ch =
+				new ClientHandler(nick, s, in, out, as
 					.getServer()));
 	    } else {
-		out.writeUnshared(new Protocol(Protocol.Type.MESSAGE, "AUTH: Terminating connection..."));
+		out.writeUnshared(new Protocol(Protocol.Type.MESSAGE,
+			"AUTH: Terminating connection..."));
 		s.close();
 	    }
 	} catch (NullPointerException | IOException | ClassNotFoundException e) {

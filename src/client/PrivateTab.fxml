@@ -5,16 +5,33 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.effect.*?>
 <?import javafx.scene.layout.*?>
-<fx:root type="javafx.scene.control.Tab" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
-<SplitPane dividerPositions="0.9190751445086706" orientation="VERTICAL" prefHeight="384.0" prefWidth="600.0" >
+
+<SplitPane dividerPositions="0.9190751445086706" orientation="VERTICAL" prefHeight="384.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
    <items>
       <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0">
          <children>
-            <ScrollPane prefViewportHeight="348.0" prefViewportWidth="598.0">
-               <content>
-                  <TextArea fx:id="chatArea" editable="false" layoutX="154.0" layoutY="108.0" prefHeight="348.0" prefWidth="598.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
-               </content>
-            </ScrollPane>
+            <SplitPane dividerPositions="0.8" prefHeight="348.0" prefWidth="598.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+              <items>
+                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="160.0" prefWidth="100.0">
+                     <children>
+                        <ScrollPane prefViewportHeight="348.0" prefViewportWidth="598.0">
+                           <content>
+                              <TextArea fx:id="chatArea" editable="false" layoutX="154.0" layoutY="108.0" prefHeight="348.0" prefWidth="598.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+                           </content>
+                        </ScrollPane>
+                     </children>
+                  </AnchorPane>
+                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="160.0" prefWidth="100.0">
+                     <children>
+                        <VBox layoutX="8.0" layoutY="14.0" prefHeight="346.0" prefWidth="116.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                           <children>
+                              <Button fx:id="sendFileButton" mnemonicParsing="false" onAction="#openSendFileDialog" prefHeight="25.0" prefWidth="123.0" text="Send file" />
+                           </children>
+                        </VBox>
+                     </children>
+                  </AnchorPane>
+              </items>
+            </SplitPane>
          </children>
       </AnchorPane>
       <AnchorPane>
@@ -32,7 +49,7 @@
                   </AnchorPane>
                   <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="160.0" prefWidth="100.0">
                      <children>
-                        <Button fx:id="sendButton" layoutX="32.0" layoutY="-12.0" mnemonicParsing="false" onAction="#send" prefHeight="23.0" prefWidth="153.0" text="Send" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+                        <Button fx:id="sendButton" defaultButton="true" layoutX="32.0" layoutY="-12.0" mnemonicParsing="false" onAction="#send" prefHeight="23.0" prefWidth="153.0" text="Send" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
                      </children>
                   </AnchorPane>
                </items>
@@ -41,4 +58,3 @@
       </AnchorPane>
    </items>
 </SplitPane>
-</fx:root>

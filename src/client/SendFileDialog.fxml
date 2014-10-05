@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import java.lang.*?>
+<?import javafx.scene.layout.*?>
+
+
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="95.0" prefWidth="191.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
+   <children>
+      <Button fx:id="browseButton" layoutY="69.0" mnemonicParsing="false" onAction="#browse" text="Browse..." />
+      <ProgressBar fx:id="progressBar" layoutY="48.0" prefHeight="18.0" prefWidth="191.0" progress="0.0" />
+      <Label layoutY="6.0" prefHeight="17.0" prefWidth="191.0" text="Browse for files then click send" />
+      <Button fx:id="sendButton" layoutX="148.0" layoutY="69.0" mnemonicParsing="false" onAction="#initiateSend" text="Send" />
+      <ProgressIndicator fx:id="progressBall" layoutX="81.0" layoutY="25.0" progress="0.0" />
+      <Button fx:id="cancelButton" layoutX="95.0" layoutY="69.0" mnemonicParsing="false" onAction="#cancelSend" text="Button" />
+   </children>
+</AnchorPane>

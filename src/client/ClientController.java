@@ -12,6 +12,7 @@ import java.util.Vector;
 
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
+import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -20,6 +21,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.SplitPane;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TextArea;
@@ -61,6 +63,7 @@ public class ClientController implements Initializable {
 
     @FXML
     private Stage settings;
+    private List<PrivateChat> privateChatSessions;
 
     public ClientController(String title, Stage primaryStage, Client c) {
 	this.primaryStage = primaryStage;
@@ -222,16 +225,39 @@ public class ClientController implements Initializable {
     protected void addPrivateChatTab(String remoteNick, int port, boolean isHost) {
 	FXMLLoader loader =
 		new FXMLLoader(getClass().getResource("PrivateTab.fxml"));
+	PrivateChat pc;
 	try {
-	    loader.setController(new PrivateChat(remoteNick, port, isHost));
+	    loader.setController(pc = new PrivateChat(remoteNick, port, isHost));
 	    if (isHost) {
-		associatedClient.connectRemoteUser(remoteNick, port);
+		associatedClient.connectRemoteUser(remoteNick,
+			PrivateChat.getPort());
 	    }
 	    Tab privateChat = new Tab(remoteNick);
-	    loader.setRoot(privateChat);
-	    loader.load();
+	    privateChat.setOnCloseRequest(new EventHandler<Event>() {
+		public void handle(Event event) {
+		    try {
+			pc.close();
+		    } catch (IOException e) {
+			e.printStackTrace();
+		    }
+		}
+	    });
+	    SplitPane sp = loader.load();
+	    privateChat.setContent(sp);
 	    addPrivateChatTab(privateChat);
+	    pc.start();
+	    if (privateChatSessions == null)
+		privateChatSessions = new Vector<PrivateChat>();
+	    privateChatSessions.add(pc);
 	} catch (IOException e) {
+	    e.printStackTrace();
 	}
+    }
+
+    protected void closeAllPrivateChats() throws IOException {
+	if (privateChatSessions != null)
+	    for (PrivateChat pc : privateChatSessions) {
+		    pc.close();
+	    }
     }
 }

@@ -18,6 +18,7 @@ import javafx.application.Application;
 import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 
@@ -35,7 +36,7 @@ public class Server extends Application implements Runnable {
     }
 
     public Server() throws IOException {
-	this(2301);
+	this(5050);
     }
 
     public Server(int port) throws IOException {
@@ -76,19 +77,18 @@ public class Server extends Application implements Runnable {
 	primaryStage.setOnCloseRequest(new EventHandler<WindowEvent>() {
 	    public void handle(WindowEvent event) {
 		stop();
-		event.consume();
-		primaryStage.close();
 	    }
 	});
-	sgc.setLabel("Server is running on port " + getLocalPort());
+	sgc.setLabel("Server is running on port " + serversocket.getLocalPort());
 	primaryStage.setIconified(true);
+	primaryStage.getIcons().add(new Image(getClass().getResourceAsStream("/Resources/MuliChat.bmp")));
 	primaryStage.show();
     }
 
     @Override
     public void run() {
 	isRunning = true;
-	System.out.println("Server running on port " + getLocalPort());
+	System.out.println("Server running on port " + serversocket.getLocalPort());
 	logger.info("Server started running on port "
 		+ serversocket.getLocalPort() + '.');
 	while (isRunning) {
@@ -103,7 +103,7 @@ public class Server extends Application implements Runnable {
     public void stop() {
 	logger.info("Server shutting down...");
 	try {
-	    broadcastMessage("@Auth", "Server shutting down! bye bye!");
+	    broadcastMessage("Auth", "Server shutting down! bye bye!");
 	    serversocket.close();
 	    as.closeAll();
 	    closeAll();
@@ -149,11 +149,13 @@ public class Server extends Application implements Runnable {
 	    throws IOException {
 	logger.info("Client " + nick + " authenticated and connected.");
 	handlers.put(nick, ch);
+	broadcastMessage("Auth", nick + " has joined the chat.");
 	broadcastClientList();
     }
 
     protected synchronized void removeClient(String nick) throws IOException {
 	handlers.remove(nick);
+	broadcastMessage("Auth", nick + " has left.");
 	broadcastClientList();
     }
 
@@ -179,12 +181,12 @@ public class Server extends Application implements Runnable {
 	return isRunning;
     }
 
-    public int getLocalPort() {
-	return serversocket.getLocalPort();
-    }
-
     protected void initiatePeerConnection(String host, String remote, int port)
 	    throws IOException {
 	handlers.get(remote).sendPrivateChatHostDetails(host, port);
+    }
+
+    public int getLocalPort() {
+	return serversocket.getLocalPort();
     }
 }

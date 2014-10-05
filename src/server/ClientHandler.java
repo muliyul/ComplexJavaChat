@@ -67,15 +67,15 @@ public class ClientHandler extends Thread {
 	    break; // return client's nick
 	}
 	case I_QUIT: { // RECIEVE QUIT ALERT
-	    server.broadcastMessage(nick, "has left.");
 	    server.removeClient(nick);
 	    s.close();
 	    isConnected = false;
 	    break;
 	}
 	case INITIATE_PEER_CONNECTION: { // RECIEVE PRIVATE CHAT HOST
-	    int port = (int) params[0];
-	    server.initiatePeerConnection(this.nick, nick, port);
+	    String nickToSendTo = (String) params[0];
+	    int port = (int) params[1];
+	    server.initiatePeerConnection(nick, nickToSendTo, port);
 	    break;
 	}
 	case CLIENT_PEER_CONNECTION_REQUEST: { // SEND PRIVATE CHAT HOST
